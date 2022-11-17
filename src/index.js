@@ -14,17 +14,6 @@ const BoardType = {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-const copy_game = (game) => {
-  let G = Object.assign({}, game);
-  G.board = JSON.parse(JSON.stringify(game.board));
-  for (let player of G.players) {
-    if (!player.flag) continue;
-    player = { ...game.players[player.id-1] };
-    player.board = JSON.parse(JSON.stringify(game.board));
-  }
-  return G;
-}
-
 const Main = () => {
   const [ws, setWs] = useState(null);
   const [activeCell, setActiveCell] = useState({i:-1, j:-1});
@@ -39,39 +28,39 @@ const Main = () => {
       console.log('success connect!');
       initWebSocket();
     } else {
-      setWs(webSocket('http://localhost:' + port));
+      setWs(webSocket(url.slice(0, url.length - 5) + port + '/'));
     }
   }, [ws]);
 
   useEffect(() => {
     const keyEvent = (event) => {
-      let d = {i: 0, j: 0};
+      let [di, dj] = [0, 0];
       let _activeCell = Object.assign({}, activeCell);
       if (event.key === "ArrowLeft") {
         if (_activeCell.j <= 0) return;
         if (game.board[_activeCell.i][_activeCell.j-1].type === BoardType.obstacle) return;
-        d = {i:0, j:-1};
+        [di, dj] = [0, -1];
         _activeCell.j--;
       } else if (event.key === "ArrowUp") {
         if (_activeCell.i <= 0) return;
         if (game.board[_activeCell.i-1][_activeCell.j].type === BoardType.obstacle) return;
-        d = {i:-1, j:0};
+        [di, dj] = [-1, 0];
         _activeCell.i--;
       } else if (event.key === "ArrowRight") {
         if (_activeCell.j >= game.col-1) return;
         if (game.board[_activeCell.i][_activeCell.j+1].type === BoardType.obstacle) return;
-        d = {i:0, j:1};
+        [di, dj] = [0, 1];
         _activeCell.j++;
       } else if (event.key === "ArrowDown") {
         if (_activeCell.i >= game.row-1) return;
         if (game.board[_activeCell.i+1][_activeCell.j].type === BoardType.obstacle) return;
-        d = {i:1, j:0};
+        [di, dj] = [1, 0];
         _activeCell.i++;
       } else {
         return;
       }
       if (player_id === 0) return;
-      ws.emit('addMove', {player_id: player_id, p: activeCell, d: d, is_half: false});
+      ws.emit('addMove', {player_id: player_id, p: activeCell, d: {i: di, j: dj}, is_half: false});
       setActiveCell(_activeCell);
     }
     document.addEventListener('keydown', keyEvent, false);
