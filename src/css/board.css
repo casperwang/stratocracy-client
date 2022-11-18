@@ -1,3 +1,19 @@
 .board {
   width: fit-content;
 }
+
+button {
+  margin: 20px;
+  padding: 20px;
+  font-size: 30px;
+  background-color: rgba(32, 32, 180, 0.01);
+  border-color: rgba(32, 32, 180, 1);
+  border-width: 4px;
+  color: black;
+  font-family: Consolas;
+}
+
+button:active {
+  color: white;
+  background: linear-gradient(135deg, rgba(32, 32, 180, 0.9) 0%, rgba(32, 32, 180, 0.3) 100%);
+}

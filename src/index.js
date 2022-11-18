@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import Board from './board';
-import AdminPage from './adminpage';
+import MenuPage from './menuPage';
+import AdminPage from './adminPage';
 import webSocket from 'socket.io-client';
 
 const BoardType = {
@@ -15,13 +16,13 @@ const BoardType = {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
+var player_id = -1;
+
 const Main = () => {
   const [ws, setWs] = useState(null);
-  const [activeCell, setActiveCell] = useState({i:-1, j:-1});
+  const [activeCell, setActiveCell] = useState([-1, -1]);
   const [game, setGame] = useState(null);
-  const [adminFlag, setAdminFlag] = useState(false);
-
-  const player_id = -1;
+  const [pageStatus, setPageStatus] = useState('menuPage');
 
   useEffect(() => {
     if (ws) {
@@ -35,46 +36,50 @@ const Main = () => {
   useEffect(() => {
     const keyEvent = (event) => {
       let [di, dj] = [0, 0];
-      let _activeCell = Object.assign({}, activeCell);
+      let [i, j] = activeCell;
       if (event.key === "ArrowLeft") {
-        if (_activeCell.j <= 0) return;
-        if (game.board[_activeCell.i][_activeCell.j-1].type === BoardType.obstacle) return;
+        if (j <= 0) return;
+        if (game.board[i][j-1].type === BoardType.obstacle) return;
         [di, dj] = [0, -1];
-        _activeCell.j--;
+        j--;
       } else if (event.key === "ArrowUp") {
-        if (_activeCell.i <= 0) return;
-        if (game.board[_activeCell.i-1][_activeCell.j].type === BoardType.obstacle) return;
+        if (i <= 0) return;
+        if (game.board[i-1][j].type === BoardType.obstacle) return;
         [di, dj] = [-1, 0];
-        _activeCell.i--;
+        i--;
       } else if (event.key === "ArrowRight") {
-        if (_activeCell.j >= game.col-1) return;
-        if (game.board[_activeCell.i][_activeCell.j+1].type === BoardType.obstacle) return;
+        if (j >= game.col-1) return;
+        if (game.board[i][j+1].type === BoardType.obstacle) return;
         [di, dj] = [0, 1];
-        _activeCell.j++;
+        j++;
       } else if (event.key === "ArrowDown") {
-        if (_activeCell.i >= game.row-1) return;
-        if (game.board[_activeCell.i+1][_activeCell.j].type === BoardType.obstacle) return;
+        if (i >= game.row-1) return;
+        if (game.board[i+1][j].type === BoardType.obstacle) return;
         [di, dj] = [1, 0];
-        _activeCell.i++;
+        i++;
       } else {
         return;
       }
       if (player_id === 0) return;
-      ws.emit('addMove', {player_id: player_id, p: activeCell, d: {i: di, j: dj}, is_half: false});
-      setActiveCell(_activeCell);
+      ws.emit('addMove', {player_id: player_id, p: activeCell, d: [di, dj], is_half: false});
+      setActiveCell([i, j]);
     }
     document.addEventListener('keydown', keyEvent, false);
     return () => document.removeEventListener('keydown', keyEvent);
   }, [ws, game, setGame, activeCell, setActiveCell]);
 
   const initWebSocket = () => {
-    ws.on('getPlayerId', (id) => {
+    ws.on('playerId', (id) => {
       player_id = id;
-      if (player_id === 0)
-        setAdminFlag(true);
-      ws.on('gameStart', () => {
-        if (player_id === 0)
-          setAdminFlag(false);
+      console.log(player_id);
+      if (player_id === 0) {
+        setPageStatus('adminPage');
+      } else {
+        setPageStatus('waitingPage');
+      }
+      ws.on('gameStart', init_game => {
+        setGame(init_game);
+        setPageStatus('board');
         ws.on('gameState', game => {
           setGame(game);
         });
@@ -82,19 +87,31 @@ const Main = () => {
     });
   }
 
-  const onClick = (setting) => {
-    ws.emit('ready', setting);
+  const onClick = (page, props) => {
+    if (page === 'menuPage') {
+      if (props.admin === true) {
+        ws.emit('newGame');
+      } else {
+        ws.emit('newPlayer');
+      }
+    } else if (page === 'adminPage') {
+      ws.emit('createGame', props.setting);
+    }
   }
 
-  if (adminFlag === true) {
-    return <AdminPage onClick={onClick}/>;
+  switch (pageStatus) {
+    case 'menuPage':
+      return <MenuPage onClick={onClick}/>;
+    case 'adminPage':
+      return <AdminPage onClick={onClick}/>;
+    case 'waitingPage':
+      return;
+    case 'board':
+      let board = (player_id === 0 ? game.board : game.players[player_id-1].board);
+      return <Board board={board} activeCell={activeCell} setActiveCell={setActiveCell} key="board"/>;
+    default:
+      return
   }
-  
-  if (game === null) return;
-
-  let board = (player_id === 0 ? game.board : game.players[player_id-1].board);
-
-  return <Board board={board} activeCell={activeCell} setActiveCell={setActiveCell} key="board"/>;
 }
 
-root.render(<Main />, document.getElementById('root'));
+root.render(<Main />);

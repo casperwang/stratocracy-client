@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './css/adminpage.css';
+import './css/adminPage.css';
 
 export default function AdminPage({onClick}) {
   const [setting, setSetting] = useState({
@@ -19,24 +19,24 @@ export default function AdminPage({onClick}) {
   }
 
   const handleSubmit = () => {
-    onClick(setting);
+    onClick('adminPage', {setting: setting});
   }
   
   return(
-    <div class='form'>
-      <div class='inputElement'>
+    <div className='form'>
+      <div className='inputElement'>
         <label>Board Height</label><br></br>
         <input type='range' id='row' min='10' max='28' value={setting.row} onChange={handleChange}></input><br></br>
       </div>
-      <div class='inputElement'>
+      <div className='inputElement'>
         <label>Board Width</label><br></br>
         <input type='range' id='col' min='10' max='40' value={setting.col} onChange={handleChange}></input><br></br>
       </div>
-      <div class='inputElement'>
+      <div className='inputElement'>
         <label>Number of Real Player</label><br></br>
         <input type='number' id='real_player_cnt' min='0' max='8' value={setting.real_player_cnt} onChange={handleChange}></input><br></br>
       </div>
-      <div class='inputElement'>
+      <div className='inputElement'>
         <label>Number of AI Player</label><br></br>
         <input type='number' id='ai_player_cnt' min='0' max='8' value={setting.ai_player_cnt} onChange={handleChange}></input><br></br>
       </div>

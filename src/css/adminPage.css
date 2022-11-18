@@ -19,13 +19,3 @@ input {
   font-size: 18px;
   font-family: Consolas;
 }
-
-button {
-  margin: 20px;
-  padding: 20px;
-  font-size: 30px;
-  border-radius: 10px;
-  background-color: #145DA0;
-  color: white;
-  font-family: Consolas;
-}
