@@ -21,16 +21,12 @@ const Main = () => {
   const [game, setGame] = useState(null);
   const [adminFlag, setAdminFlag] = useState(false);
 
-  const url = document.URL;
-  const port = 2000 + Number(url.slice(url.length - 5, url.length-1));
-  const player_id = port - 5000;
+  const player_id = -1;
 
   useEffect(() => {
     if (ws) {
       console.log('success connect!');
       initWebSocket();
-      if (player_id === 0)
-        setAdminFlag(true);
     } else {
       setWs(webSocket('linux9.csie.ntu.edu.tw:5000/'));
     }
@@ -72,13 +68,18 @@ const Main = () => {
   }, [ws, game, setGame, activeCell, setActiveCell]);
 
   const initWebSocket = () => {
-    ws.on('gameStart', () => {
+    ws.on('getPlayerId', (id) => {
+      player_id = id;
       if (player_id === 0)
-        setAdminFlag(false);
-      ws.on('gameState', game => {
-        setGame(game);
+        setAdminFlag(true);
+      ws.on('gameStart', () => {
+        if (player_id === 0)
+          setAdminFlag(false);
+        ws.on('gameState', game => {
+          setGame(game);
+        });
       });
-    })
+    });
   }
 
   const onClick = (setting) => {

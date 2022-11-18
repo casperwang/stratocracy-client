@@ -25,19 +25,19 @@ export default function AdminPage({onClick}) {
   return(
     <div class='form'>
       <div class='inputElement'>
-        <label>board height</label><br></br>
+        <label>Board Height</label><br></br>
         <input type='range' id='row' min='10' max='28' value={setting.row} onChange={handleChange}></input><br></br>
       </div>
       <div class='inputElement'>
-        <label>board width</label><br></br>
+        <label>Board Width</label><br></br>
         <input type='range' id='col' min='10' max='40' value={setting.col} onChange={handleChange}></input><br></br>
       </div>
       <div class='inputElement'>
-        <label>number of real player</label><br></br>
+        <label>Number of Real Player</label><br></br>
         <input type='number' id='real_player_cnt' min='0' max='8' value={setting.real_player_cnt} onChange={handleChange}></input><br></br>
       </div>
       <div class='inputElement'>
-        <label>number of AI player</label><br></br>
+        <label>Number of AI Player</label><br></br>
         <input type='number' id='ai_player_cnt' min='0' max='8' value={setting.ai_player_cnt} onChange={handleChange}></input><br></br>
       </div>
       <button onClick={handleSubmit}>Game Start</button>
