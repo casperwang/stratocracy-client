@@ -1,5 +1,5 @@
 import React from 'react';
-import './cell.css';
+import './css/cell.css';
 
 const getColor = (type, owner) => {
   if (type === "obstacle") return "gray_cell";

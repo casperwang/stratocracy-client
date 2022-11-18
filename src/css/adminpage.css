@@ -1,0 +1,25 @@
+.form {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.inputElement {
+  width: 100%;
+  text-align: center;
+}
+
+label {
+  font-size: 20px;
+}
+
+input {
+  margin: 10px;
+  width: 150px;
+  font-size: 18px;
+}
+
+button {
+  margin: 20px;
+  padding: 20px;
+  font-size: 30px;
+}

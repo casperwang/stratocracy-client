@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import './board.css';
+import React from 'react';
 import Cell from './cell.js';
+import './css/board.css';
 
 export default function Board({board, activeCell, setActiveCell}) {
   return (

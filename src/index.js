@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import Board from './board';
+import AdminPage from './adminpage';
 import webSocket from 'socket.io-client';
 
 const BoardType = {
@@ -18,6 +19,7 @@ const Main = () => {
   const [ws, setWs] = useState(null);
   const [activeCell, setActiveCell] = useState({i:-1, j:-1});
   const [game, setGame] = useState(null);
+  const [adminFlag, setAdminFlag] = useState(false);
 
   const url = document.URL;
   const port = 2000 + Number(url.slice(url.length - 5, url.length-1));
@@ -27,8 +29,10 @@ const Main = () => {
     if (ws) {
       console.log('success connect!');
       initWebSocket();
+      if (player_id === 0)
+        setAdminFlag(true);
     } else {
-      setWs(webSocket(url.slice(0, url.length - 5) + port + '/'));
+      setWs(webSocket('linux9.csie.ntu.edu.tw:5000/'));
     }
   }, [ws]);
 
@@ -68,21 +72,28 @@ const Main = () => {
   }, [ws, game, setGame, activeCell, setActiveCell]);
 
   const initWebSocket = () => {
-    ws.on('initialization', game => {
-      setGame(game);
+    ws.on('gameStart', () => {
+      if (player_id === 0)
+        setAdminFlag(false);
       ws.on('gameState', game => {
         setGame(game);
       });
-    });
+    })
+  }
+
+  const onClick = (setting) => {
+    ws.emit('ready', setting);
+  }
+
+  if (adminFlag === true) {
+    return <AdminPage onClick={onClick}/>;
   }
   
   if (game === null) return;
 
   let board = (player_id === 0 ? game.board : game.players[player_id-1].board);
 
-  return(
-    <Board board={board} activeCell={activeCell} setActiveCell={setActiveCell} key="board"/>
-  );
+  return <Board board={board} activeCell={activeCell} setActiveCell={setActiveCell} key="board"/>;
 }
 
 root.render(<Main />, document.getElementById('root'));
