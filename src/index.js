@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import Board from './board';
 import MenuPage from './menuPage';
 import AdminPage from './adminPage';
+import WaitingPage from './waitingPage';
 import webSocket from 'socket.io-client';
 
 const BoardType = {
@@ -71,7 +72,6 @@ const Main = () => {
   const initWebSocket = () => {
     ws.on('playerId', (id) => {
       player_id = id;
-      console.log(player_id);
       if (player_id === 0) {
         setPageStatus('adminPage');
       } else {
@@ -105,7 +105,7 @@ const Main = () => {
     case 'adminPage':
       return <AdminPage onClick={onClick}/>;
     case 'waitingPage':
-      return;
+      return <WaitingPage player_id={player_id}/>;
     case 'board':
       let board = (player_id === 0 ? game.board : game.players[player_id-1].board);
       return <Board board={board} activeCell={activeCell} setActiveCell={setActiveCell} key="board"/>;
